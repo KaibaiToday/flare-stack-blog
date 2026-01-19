@@ -42,7 +42,7 @@ export function CodeBlockView({
         {/* Minimal Header */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-200/10 dark:border-zinc-800/10 bg-zinc-100 dark:bg-zinc-800 select-none rounded-t-sm">
           <div className="flex items-center gap-4">
-            <span className="text-[10px] font-mono font-medium text-muted-foreground/60 uppercase tracking-widest">
+            <span className="text-xs font-mono font-medium text-muted-foreground/80">
               <DropdownMenu
                 value={language}
                 onChange={(val) => updateAttributes({ language: val })}
@@ -57,15 +57,15 @@ export function CodeBlockView({
           <button
             onClick={handleCopy}
             contentEditable={false}
-            className="flex items-center gap-2 text-[10px] font-mono font-medium text-muted-foreground hover:text-foreground transition-all duration-300"
+            className="flex items-center gap-2 text-xs font-mono text-muted-foreground hover:text-foreground transition-all duration-300"
           >
             {copied ? (
-              <span className="animate-in fade-in slide-in-from-right-1 tracking-widest text-[9px] uppercase opacity-70">
-                Copied
+              <span className="animate-in fade-in slide-in-from-right-1 opacity-70">
+                已复制
               </span>
             ) : null}
             <div className="p-0.5 opacity-60 group-hover/btn:opacity-100 transition-opacity">
-              {copied ? <Check size={10} /> : <Copy size={10} />}
+              {copied ? <Check size={12} /> : <Copy size={12} />}
             </div>
           </button>
         </div>
