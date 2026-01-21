@@ -6,7 +6,7 @@ import {
   notFound,
   useNavigate,
 } from "@tanstack/react-router";
-import { ArrowLeft, ArrowUp, Share2 } from "lucide-react";
+import { ArrowLeft, ArrowUp, Share2, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -135,9 +135,15 @@ function RouteComponent() {
             </h1>
           </div>
 
-          <p className="text-lg md:text-xl font-light leading-relaxed text-muted-foreground border-l-[1.5px] border-foreground/20 pl-6 italic">
-            {post.summary}
-          </p>
+          <div className="bg-muted/30 rounded-lg p-6 space-y-3 border border-border/40">
+            <div className="flex items-center gap-2 text-muted-foreground/80 font-medium text-sm uppercase tracking-widest">
+              <Sparkles className="w-4 h-4" />
+              <span>摘要</span>
+            </div>
+            <p className="text-lg leading-relaxed text-muted-foreground font-serif">
+              {post.summary}
+            </p>
+          </div>
         </header>
 
         {/* Content Layout */}
