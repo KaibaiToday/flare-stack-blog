@@ -10,6 +10,7 @@ import { getDb } from "@/lib/db";
 import { getAuth } from "@/lib/auth/auth.server";
 
 // ======================= Cache Control ====================== */
+// deprecated 感觉没啥用了，现在都是hono api来获取公开博客数据了，hono那里设置好缓存头就行了
 export const createCacheHeaderMiddleware = (
   strategy: "private" | "immutable" | "swr" | "public",
 ) => {

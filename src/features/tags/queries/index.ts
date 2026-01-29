@@ -6,6 +6,8 @@ import {
   getTagsWithCountAdminFn,
 } from "../api/tags.api";
 import type { GetTagsInput } from "../tags.schema";
+import { apiClient } from "@/lib/api-client";
+import { isSSR } from "@/lib/utils";
 
 export const TAGS_KEYS = {
   all: ["tags"] as const,
@@ -23,12 +25,17 @@ export const TAGS_KEYS = {
   postTags: (postId: number) => ["post", postId, "tags"] as const,
 };
 
-export function tagsQueryOptions() {
-  return queryOptions({
-    queryKey: TAGS_KEYS.public,
-    queryFn: () => getTagsFn({}),
-  });
-}
+export const tagsQueryOptions = queryOptions({
+  queryKey: TAGS_KEYS.public,
+  queryFn: async () => {
+    if (isSSR) {
+      return await getTagsFn();
+    }
+    const res = await apiClient.tags.$get();
+    if (!res.ok) throw new Error("Failed to fetch tags");
+    return res.json();
+  },
+});
 
 export function tagsAdminQueryOptions(options: GetTagsInput = {}) {
   return queryOptions({

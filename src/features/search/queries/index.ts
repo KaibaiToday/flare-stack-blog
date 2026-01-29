@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getIndexVersionFn, searchDocsFn } from "../search.api";
+import { getIndexVersionFn } from "../search.api";
+import { apiClient } from "@/lib/api-client";
 
 export const SEARCH_KEYS = {
   all: ["search"] as const,
@@ -20,5 +21,11 @@ export const searchMetaQuery = queryOptions({
 export const searchDocsQueryOptions = (query: string, version: string) =>
   queryOptions({
     queryKey: SEARCH_KEYS.results(query, version),
-    queryFn: () => searchDocsFn({ data: { q: query, v: version } }),
+    queryFn: async () => {
+      const res = await apiClient.search.$get({
+        query: { q: query, v: version },
+      });
+      if (!res.ok) throw new Error("Failed to search");
+      return res.json();
+    },
   });

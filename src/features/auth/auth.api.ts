@@ -2,13 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import * as AuthService from "@/features/auth/auth.service";
 import {
   authMiddleware,
-  createCacheHeaderMiddleware,
   createRateLimitMiddleware,
   sessionMiddleware,
 } from "@/lib/middlewares";
 
 export const getSessionFn = createServerFn()
-  .middleware([createCacheHeaderMiddleware("private"), sessionMiddleware])
+  .middleware([sessionMiddleware])
   .handler(({ context }) => AuthService.getSession(context));
 
 export const userHasPasswordFn = createServerFn()

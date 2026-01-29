@@ -5,6 +5,7 @@
     "": {
       "name": ".",
       "dependencies": {
+        "@hono/zod-validator": "^0.7.6",
         "@hookform/resolvers": "^5.2.2",
         "@orama/orama": "^3.1.16",
         "@tailwindcss/vite": "^4.0.6",
@@ -277,6 +278,8 @@
     "@fontsource-variable/noto-sans-sc": ["@fontsource-variable/noto-sans-sc@5.2.10", "", {}, "sha512-zdk10i5HrDQTXI7ldD61zToX1fsgig8vDTsu7zB48SXOitWfuX0e5viZAwnkHuhwh096PU6X6i1AyAsbBCISpA=="],
 
     "@fontsource-variable/noto-serif-sc": ["@fontsource-variable/noto-serif-sc@5.2.10", "", {}, "sha512-TRhuDxWAnqUUtRZFCy8aoJB3/7HsuCaW/4B3wBTE0hzE8QVapklTjE2aY7s/wXWFXHLdflYNroloZoXekoKClw=="],
+
+    "@hono/zod-validator": ["@hono/zod-validator@0.7.6", "", { "peerDependencies": { "hono": ">=3.9.0", "zod": "^3.25.0 || ^4.0.0" } }, "sha512-Io1B6d011Gj1KknV4rXYz4le5+5EubcWEU/speUjuw9XMMIaP3n78yXLhjd2A3PXaXaUwEAluOiAyLqhBEJgsw=="],
 
     "@hookform/resolvers": ["@hookform/resolvers@5.2.2", "", { "dependencies": { "@standard-schema/utils": "0.3.0" }, "peerDependencies": { "react-hook-form": "7.68.0" } }, "sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA=="],
 

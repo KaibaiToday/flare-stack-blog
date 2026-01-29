@@ -10,10 +10,31 @@ import {
 import { createRateLimiterIdentifier } from "./helper";
 import { handleImageRequest } from "@/features/media/media.service";
 import { serverEnv } from "@/lib/env/server.env";
+import postsListRoute from "@/features/posts/api/hono/posts.list.route";
+import postsDetailRoute from "@/features/posts/api/hono/posts.detail.route";
+import postsRelatedRoute from "@/features/posts/api/hono/posts.related.route";
+import tagsRoute from "@/features/tags/api/hono/tags.list.route";
+import searchRoute from "@/features/search/api/hono/search.route";
 
 export const app = new Hono<{ Bindings: Env }>();
 
 app.get("*", cacheMiddleware);
+
+/* ================================ Public API ================================ */
+
+// Public API routes with RPC support - 链式调用保留类型推断
+const publicApi = new Hono<{ Bindings: Env }>()
+  .route("/posts", postsListRoute)
+  .route("/post", postsDetailRoute)
+  .route("/post", postsRelatedRoute)
+  .route("/tags", tagsRoute)
+  .route("/search", searchRoute);
+
+// Mount public API
+app.route("/api", publicApi);
+
+// Export type for RPC client
+export type PublicApiType = typeof publicApi;
 
 /* ================================ 路由开始 ================================ */
 app.get("/stats.js", async (c) => {

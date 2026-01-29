@@ -13,10 +13,6 @@ import { PostItem } from "@/features/posts/components/view/post-item";
 import { tagsQueryOptions } from "@/features/tags/queries";
 import { cn } from "@/lib/utils";
 
-const DisplayTagsQueryOptions = {
-  ...tagsQueryOptions(),
-};
-
 export const Route = createFileRoute("/_public/posts")({
   validateSearch: z.object({
     tagName: z.string().optional(),
@@ -29,8 +25,9 @@ export const Route = createFileRoute("/_public/posts")({
       context.queryClient.prefetchInfiniteQuery(
         postsInfiniteQueryOptions({ tagName: deps.tagName }),
       ),
-      context.queryClient.prefetchQuery(DisplayTagsQueryOptions),
+      context.queryClient.prefetchQuery(tagsQueryOptions),
     ]);
+
     return {
       title: "全部文章",
     };
@@ -52,7 +49,7 @@ function RouteComponent() {
   const { tagName } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
 
-  const { data: tags } = useSuspenseQuery(DisplayTagsQueryOptions);
+  const { data: tags } = useSuspenseQuery(tagsQueryOptions);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(postsInfiniteQueryOptions({ tagName }));

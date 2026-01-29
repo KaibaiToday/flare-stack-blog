@@ -2,6 +2,8 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { ClassValue } from "clsx";
 
+export const isSSR = typeof window === "undefined";
+
 export function cn(...inputs: Array<ClassValue>) {
   return twMerge(clsx(inputs));
 }

@@ -32,19 +32,15 @@ export const Route = createFileRoute("/_public/post/$slug")({
   validateSearch: searchSchema,
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    // 1. Critical: Main post data
-    const postPromise = context.queryClient.ensureQueryData(
+    // 1. Critical: Main post data - use serverFn (executes directly on server, no HTTP)
+    const post = await context.queryClient.ensureQueryData(
       postBySlugQuery(params.slug),
     );
 
     // 2. Deferred: Related posts (prefetch only, don't await)
     void context.queryClient.prefetchQuery(relatedPostsQuery(params.slug));
 
-    const post = await postPromise;
-
-    if (!post) {
-      throw notFound();
-    }
+    if (!post) throw notFound();
 
     // 后台预加载 Shiki 语言，不阻塞 loader
     if (post.contentJson) {

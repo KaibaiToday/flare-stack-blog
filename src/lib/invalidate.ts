@@ -60,8 +60,19 @@ export async function purgeCDNCache(env: Env, options: PurgeOptions) {
 
 export async function purgePostCDNCache(env: Env, slug: string) {
   return purgeCDNCache(env, {
-    urls: [`/post/${slug}`, "/"],
-    prefixes: ["/_serverFn", "/posts", "/search"],
+    urls: [
+      `/post/${slug}`, // 页面
+      `/api/post/${slug}`, // 单篇 API（单数）
+      `/api/post/${slug}/related`, // 相关文章 API
+      `/api/tags`, // 标签 API
+      "/",
+    ],
+    prefixes: [
+      "/posts", // 列表页面
+      "/api/posts", // 列表 API（复数）
+      "/search", // 搜索页面
+      "/api/search", // 搜索 API
+    ],
   });
 }
 
