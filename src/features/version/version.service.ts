@@ -85,7 +85,12 @@ export async function checkForUpdate(
 
     return ok(data);
   } catch (error) {
-    console.error("[VersionService] Failed to check for update:", error);
+    console.error(
+      JSON.stringify({
+        message: "version check failed",
+        error: error instanceof Error ? error.message : String(error),
+      }),
+    );
     return err({ reason: "FETCH_FAILED" });
   }
 }
