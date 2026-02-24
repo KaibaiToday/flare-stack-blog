@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { and, desc, eq, lte } from "drizzle-orm";
 import { PostsTable } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
+import { getCurrentMinuteEnd } from "@/lib/utils";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           .where(
             and(
               eq(PostsTable.status, "published"),
-              lte(PostsTable.publishedAt, new Date()),
+              lte(PostsTable.publishedAt, getCurrentMinuteEnd()),
             ),
           )
           .orderBy(desc(PostsTable.updatedAt))

@@ -10,21 +10,47 @@ interface DatePickerProps {
   value: string;
   onChange: (date: string) => void;
   className?: string;
+  mode?: "date" | "datetime";
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({
   value,
   onChange,
   className = "",
+  mode = "date",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const parseValueToDate = (raw: string) => {
+    if (!raw) return null;
+
+    if (mode === "datetime") {
+      const parsed = new Date(raw);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    const [year, month, day] = raw.split("-").map(Number);
+    if (!year || !month || !day) return null;
+    return new Date(year, month - 1, day);
+  };
+
   // Parse initial value or default to today
-  const initialDate = value ? new Date(value) : new Date();
+  const parsedValueDate = parseValueToDate(value);
+  const initialDate = parsedValueDate ?? new Date();
   const [viewDate, setViewDate] = useState(initialDate);
 
   const daysOfWeek = ["日", "一", "二", "三", "四", "五", "六"];
+
+  const getSelectedTime = () => {
+    if (mode !== "datetime") return "12:00";
+    const parsed = parseValueToDate(value);
+    if (!parsed) {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    }
+    return `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}`;
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -66,15 +92,31 @@ const DatePicker: React.FC<DatePickerProps> = ({
     const dayStr = day.toString().padStart(2, "0");
     const dateString = `${year}-${month}-${dayStr}`;
 
-    onChange(dateString);
-    setIsOpen(false);
+    if (mode === "datetime") {
+      onChange(`${dateString}T${getSelectedTime()}`);
+    } else {
+      onChange(dateString);
+      setIsOpen(false);
+    }
+  };
+
+  const handleTimeChange = (timeValue: string) => {
+    if (mode !== "datetime") return;
+
+    const selected = parseValueToDate(value);
+    const baseDate = selected ?? viewDate;
+    const year = baseDate.getFullYear();
+    const month = String(baseDate.getMonth() + 1).padStart(2, "0");
+    const day = String(baseDate.getDate()).padStart(2, "0");
+    onChange(`${year}-${month}-${day}T${timeValue}`);
   };
 
   const isSelected = (day: number) => {
     if (!value) return false;
     const currentYear = viewDate.getFullYear();
     const currentMonth = viewDate.getMonth();
-    const [vYear, vMonth, vDay] = value.split("-").map(Number);
+    const datePart = mode === "datetime" ? value.split("T")[0] : value;
+    const [vYear, vMonth, vDay] = datePart.split("-").map(Number);
     return vYear === currentYear && vMonth - 1 === currentMonth && vDay === day;
   };
 
@@ -142,7 +184,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
           strokeWidth={1.5}
         />
         <span className={value ? "opacity-100" : "opacity-40"}>
-          {value || "选择日期"}
+          {value || (mode === "datetime" ? "选择日期和时间" : "选择日期")}
         </span>
       </div>
 
@@ -186,6 +228,21 @@ const DatePicker: React.FC<DatePickerProps> = ({
 
           {/* Grid Body */}
           <div className="grid grid-cols-7 gap-0.5">{renderCalendar()}</div>
+
+          {mode === "datetime" && (
+            <div className="mt-4 pt-3 border-t border-border/30 space-y-2">
+              <label className="text-[10px] font-mono text-muted-foreground block">
+                时间（分钟）
+              </label>
+              <input
+                type="time"
+                step={60}
+                value={getSelectedTime()}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                className="w-full bg-transparent border border-border/40 text-xs font-mono px-2 py-1 focus:outline-none focus:border-foreground"
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

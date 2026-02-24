@@ -6,6 +6,7 @@ import { serverEnv } from "@/lib/env/server.env";
 import { PostsTable } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { convertToPlainText } from "@/features/posts/utils/content";
+import { getCurrentMinuteEnd } from "@/lib/utils";
 
 export const Route = createFileRoute("/rss.xml")({
   server: {
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/rss.xml")({
           .where(
             and(
               eq(PostsTable.status, "published"),
-              lte(PostsTable.publishedAt, new Date()),
+              lte(PostsTable.publishedAt, getCurrentMinuteEnd()),
             ),
           )
           .orderBy(desc(PostsTable.publishedAt))

@@ -23,7 +23,7 @@
   ],
   "r2_buckets": [
     {
-      "bucket_name": "bucket-name-placeholder",
+      "bucket_name": "BUCKET_NAME",
       "binding": "R2",
       "remote": true,
     },

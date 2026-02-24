@@ -1,7 +1,7 @@
 import { Calendar, Edit, Tag } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { PostItem } from "@/features/posts/posts.schema";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, formatDateByMinute } from "@/lib/utils";
 
 interface PostMetaProps {
   post: PostItem;
@@ -28,7 +28,7 @@ export function PostMeta({ post, className }: PostMetaProps) {
           <Calendar strokeWidth={1.5} size={20} />
         </div>
         <span className="text-sm font-medium fuwari-text-50">
-          {formatDate(published)}
+          {formatDateByMinute(published)}
         </span>
       </div>
 

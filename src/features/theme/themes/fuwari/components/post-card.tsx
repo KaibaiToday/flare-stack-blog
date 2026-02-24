@@ -70,7 +70,7 @@ export function PostCard({ post }: PostCardProps) {
 
         {/* Read time */}
         <div className="text-sm fuwari-text-30 flex gap-4">
-          <span>{post.readTimeInMinutes} 分钟</span>
+          <span>预计阅读时间：{post.readTimeInMinutes} 分钟</span>
         </div>
       </div>
 

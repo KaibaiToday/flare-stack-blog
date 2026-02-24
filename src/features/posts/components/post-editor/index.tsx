@@ -13,7 +13,7 @@ import { Editor } from "@/components/tiptap-editor";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import DatePicker from "@/components/ui/date-picker";
-import { toLocalDateString } from "@/lib/utils";
+import { parseLocalDateTimeMinute, toLocalDateTimeMinuteString } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
 import { POST_STATUSES } from "@/lib/db/schema";
@@ -224,16 +224,15 @@ export function PostEditor({ initialData, onSave }: PostEditorProps) {
                 </label>
                 <div className="font-mono text-xs">
                   <DatePicker
+                    mode="datetime"
                     value={
                       post.publishedAt
-                        ? toLocalDateString(post.publishedAt)
+                        ? toLocalDateTimeMinuteString(post.publishedAt)
                         : ""
                     }
-                    onChange={(dateStr) =>
+                    onChange={(dateTimeStr) =>
                       handlePostChange({
-                        publishedAt: dateStr
-                          ? new Date(`${dateStr}T12:00:00Z`)
-                          : null,
+                        publishedAt: parseLocalDateTimeMinute(dateTimeStr),
                       })
                     }
                     className="p-0! border-none! bg-transparent! text-xs text-foreground font-mono h-auto!"

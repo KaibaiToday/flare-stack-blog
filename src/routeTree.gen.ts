@@ -36,6 +36,7 @@ import { Route as AdminPostsIndexRouteImport } from './routes/admin/posts/index'
 import { Route as AdminMediaIndexRouteImport } from './routes/admin/media/index'
 import { Route as AdminFriendLinksIndexRouteImport } from './routes/admin/friend-links/index'
 import { Route as AdminCommentsIndexRouteImport } from './routes/admin/comments/index'
+import { Route as AdminAppearanceIndexRouteImport } from './routes/admin/appearance/index'
 import { Route as PublicPostSlugRouteImport } from './routes/_public/post/$slug'
 import { Route as AdminPostsEditIdRouteImport } from './routes/admin/posts/edit.$id'
 
@@ -171,6 +172,11 @@ const AdminCommentsIndexRoute = AdminCommentsIndexRouteImport.update({
   path: '/comments/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminAppearanceIndexRoute = AdminAppearanceIndexRouteImport.update({
+  id: '/appearance/',
+  path: '/appearance/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const PublicPostSlugRoute = PublicPostSlugRouteImport.update({
   id: '/post/$slug',
   path: '/post/$slug',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/post/$slug': typeof PublicPostSlugRoute
+  '/admin/appearance': typeof AdminAppearanceIndexRoute
   '/admin/comments': typeof AdminCommentsIndexRoute
   '/admin/friend-links': typeof AdminFriendLinksIndexRoute
   '/admin/media': typeof AdminMediaIndexRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
   '/post/$slug': typeof PublicPostSlugRoute
+  '/admin/appearance': typeof AdminAppearanceIndexRoute
   '/admin/comments': typeof AdminCommentsIndexRoute
   '/admin/friend-links': typeof AdminFriendLinksIndexRoute
   '/admin/media': typeof AdminMediaIndexRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/_public/post/$slug': typeof PublicPostSlugRoute
+  '/admin/appearance/': typeof AdminAppearanceIndexRoute
   '/admin/comments/': typeof AdminCommentsIndexRoute
   '/admin/friend-links/': typeof AdminFriendLinksIndexRoute
   '/admin/media/': typeof AdminMediaIndexRoute
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/'
     | '/post/$slug'
+    | '/admin/appearance'
     | '/admin/comments'
     | '/admin/friend-links'
     | '/admin/media'
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/post/$slug'
+    | '/admin/appearance'
     | '/admin/comments'
     | '/admin/friend-links'
     | '/admin/media'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/admin/'
     | '/_public/post/$slug'
+    | '/admin/appearance/'
     | '/admin/comments/'
     | '/admin/friend-links/'
     | '/admin/media/'
@@ -557,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommentsIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/appearance/': {
+      id: '/admin/appearance/'
+      path: '/appearance'
+      fullPath: '/admin/appearance'
+      preLoaderRoute: typeof AdminAppearanceIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_public/post/$slug': {
       id: '/_public/post/$slug'
       path: '/post/$slug'
@@ -647,6 +666,7 @@ const AdminPostsRouteRouteWithChildren = AdminPostsRouteRoute._addFileChildren(
 interface AdminRouteRouteChildren {
   AdminPostsRouteRoute: typeof AdminPostsRouteRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminAppearanceIndexRoute: typeof AdminAppearanceIndexRoute
   AdminCommentsIndexRoute: typeof AdminCommentsIndexRoute
   AdminFriendLinksIndexRoute: typeof AdminFriendLinksIndexRoute
   AdminMediaIndexRoute: typeof AdminMediaIndexRoute
@@ -657,6 +677,7 @@ interface AdminRouteRouteChildren {
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminPostsRouteRoute: AdminPostsRouteRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
+  AdminAppearanceIndexRoute: AdminAppearanceIndexRoute,
   AdminCommentsIndexRoute: AdminCommentsIndexRoute,
   AdminFriendLinksIndexRoute: AdminFriendLinksIndexRoute,
   AdminMediaIndexRoute: AdminMediaIndexRoute,

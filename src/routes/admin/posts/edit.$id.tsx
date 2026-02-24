@@ -12,6 +12,7 @@ import {
   tagsByPostIdQueryOptions,
 } from "@/features/tags/queries";
 import { MEDIA_KEYS } from "@/features/media/queries";
+import { getCurrentMinuteEnd } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/posts/edit/$id")({
   component: EditPost,
@@ -82,7 +83,7 @@ function EditPost() {
             ...data,
             publishedAt:
               data.status === "published" && !post.publishedAt
-                ? new Date()
+                ? getCurrentMinuteEnd()
                 : data.publishedAt,
           },
         },

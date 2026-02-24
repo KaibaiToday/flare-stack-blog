@@ -26,6 +26,26 @@ export function formatDate(
   }).format(d);
 }
 
+export function formatDateByMinute(
+  date: Date | undefined | null | string | number,
+  options: { includeTime?: boolean } = {},
+) {
+  if (!date) return "";
+  const d = new Date(date);
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    ...(options.includeTime && {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }),
+  }).format(d);
+}
+
 export function formatTimeAgo(date: Date | null | string) {
   if (!date) return "";
   const now = new Date();
@@ -47,6 +67,27 @@ export function toLocalDateString(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+export function toLocalDateTimeMinuteString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+export function parseLocalDateTimeMinute(value: string): Date | null {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+export function getCurrentMinuteEnd(now = new Date()): Date {
+  const date = new Date(now);
+  date.setSeconds(59, 999);
+  return date;
 }
 
 export function formatBytes(bytes: number, decimals = 2) {

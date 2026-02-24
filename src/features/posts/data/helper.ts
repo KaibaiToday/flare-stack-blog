@@ -2,6 +2,7 @@ import { and, asc, desc, eq, like, lte } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import type { PostStatus } from "@/lib/db/schema";
 import { PostsTable } from "@/lib/db/schema";
+import { getCurrentMinuteEnd } from "@/lib/utils";
 
 export type SortField = "publishedAt" | "updatedAt";
 export type SortDirection = "ASC" | "DESC";
@@ -20,7 +21,8 @@ export function buildPostWhereClause(options: {
   // For public pages, also filter by publishedAt
   if (options.publicOnly) {
     whereClauses.push(eq(PostsTable.status, "published"));
-    whereClauses.push(lte(PostsTable.publishedAt, new Date()));
+    // 以“分钟”为最小单位比较：当前分钟内的文章均视为可见
+    whereClauses.push(lte(PostsTable.publishedAt, getCurrentMinuteEnd()));
   }
 
   // Search by title

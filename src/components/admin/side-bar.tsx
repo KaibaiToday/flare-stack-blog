@@ -103,6 +103,12 @@ export function SideBar({
       label: "友链管理",
       exact: false,
     },
+    {
+      path: "/admin/appearance",
+      icon: ImageIcon,
+      label: "外观设置",
+      exact: false,
+    }
   ] satisfies Array<NavItem>;
 
   return (

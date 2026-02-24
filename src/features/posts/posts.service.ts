@@ -26,11 +26,17 @@ import { convertToPlainText, slugify } from "@/features/posts/utils/content";
 import { purgePostCDNCache } from "@/lib/invalidate";
 import * as SearchService from "@/features/search/search.service";
 import { calculatePostHash } from "@/features/posts/utils/sync";
+import { getCurrentMinuteEnd } from "@/lib/utils";
 
+/**
+ * 获取公开文章的游标分页结果。
+ * 使用版本化缓存 key，支持按标签过滤的列表缓存失效。
+ */
 export async function getPostsCursor(
   context: DbContext & { executionCtx: ExecutionContext },
   data: GetPostsCursorInput,
 ) {
+  // 游标分页查询：对外只返回公开文章
   const fetcher = async () =>
     await PostRepo.getPostsCursor(context.db, {
       cursor: data.cursor,
@@ -39,6 +45,7 @@ export async function getPostsCursor(
       tagName: data.tagName,
     });
 
+  // 列表缓存使用版本号做“逻辑失效”，避免逐条删 key
   const version = await CacheService.getVersion(context, "posts:list");
   const cacheKey = POSTS_CACHE_KEYS.list(
     version,
@@ -58,11 +65,16 @@ export async function getPostsCursor(
   );
 }
 
+/**
+ * 按 slug 获取公开文章详情（含目录 toc）。
+ * 读取时对内容做代码高亮，并走详情缓存。
+ */
 export async function findPostBySlug(
   context: DbContext & { executionCtx: ExecutionContext },
   data: FindPostBySlugInput,
 ) {
   const fetcher = async () => {
+    // 公开接口只允许读取已发布文章
     const post = await PostRepo.findPostBySlug(context.db, data.slug, {
       publicOnly: true,
     });
@@ -70,6 +82,7 @@ export async function findPostBySlug(
 
     let contentJson = post.contentJson;
     if (contentJson) {
+      // 命中详情时动态进行代码高亮，避免写库时引入重计算
       const { highlightCodeBlocks } =
         await import("@/features/posts/utils/content");
       contentJson = await highlightCodeBlocks(contentJson);
@@ -89,6 +102,10 @@ export async function findPostBySlug(
   });
 }
 
+/**
+ * 获取相关文章：先缓存候选 ID，再实时回填可见文章数据。
+ * 通过二段式查询兼顾命中率与数据新鲜度。
+ */
 export async function getRelatedPosts(
   context: DbContext & { executionCtx: ExecutionContext },
   data: FindRelatedPostsInput,
@@ -100,8 +117,8 @@ export async function getRelatedPosts(
     return postIds;
   };
 
-  // Cache IDs for 7 days (long-lived cache)
-  // This key is NOT dependent on version, so it persists across publishes
+  // 先缓存“相关文章 ID 列表”（7 天），这是较稳定的长缓存
+  // 该 key 不依赖版本号，发布后也可复用
   const cacheKey = POSTS_CACHE_KEYS.related(data.slug, data.limit);
   const cachedIds = await CacheService.get(
     context,
@@ -117,10 +134,10 @@ export async function getRelatedPosts(
     return [];
   }
 
-  // Real-time hydration: fetch actual post data (automatically filters non-published)
+  // 实时回填文章数据：自动过滤掉未发布/不可见文章
   const posts = await PostRepo.getPublicPostsByIds(context.db, cachedIds);
 
-  // Restore order because SQL 'IN' clause doesn't guarantee order
+  // SQL IN 查询不保证顺序，这里按缓存 ID 顺序恢复
   const orderedPosts = cachedIds
     .map((id) => posts.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => !!p);
@@ -128,6 +145,10 @@ export async function getRelatedPosts(
   return orderedPosts;
 }
 
+/**
+ * 为指定文章生成 AI 摘要。
+ * 仅在摘要为空且正文足够长时触发生成。
+ */
 export async function generateSummaryByPostId({
   context,
   postId,
@@ -160,6 +181,10 @@ export async function generateSummaryByPostId({
 
 // ============ Admin Service Methods ============
 
+/**
+ * 基于标题生成唯一 slug。
+ * 若基础 slug 被占用，按最大数字后缀递增。
+ */
 export async function generateSlug(
   context: DbContext,
   data: GenerateSlugInput,
@@ -209,7 +234,7 @@ export async function createEmptyPost(context: DbContext) {
     contentJson: null,
   });
 
-  // No cache/index operations for drafts
+  // 草稿不进入公共缓存与搜索索引
 
   return { id: post.id };
 }
@@ -251,6 +276,10 @@ export async function findPostBySlugAdmin(
   };
 }
 
+/**
+ * 按文章 ID 获取后台详情，并返回同步状态。
+ * isSynced 用于判断数据库内容与公共缓存（KV 哈希）是否一致。
+ */
 export async function findPostById(
   context: DbContext,
   data: FindPostByIdInput,
@@ -262,6 +291,7 @@ export async function findPostById(
     context,
     POSTS_CACHE_KEYS.syncHash(post.id),
   );
+  // 是否存在“对外可见版本”的同步哈希
   const hasPublicCache = kvHash !== null;
 
   let isSynced: boolean;
@@ -269,7 +299,7 @@ export async function findPostById(
     // 草稿：同步 = KV 中没有旧缓存
     isSynced = !hasPublicCache;
   } else {
-    // 已发布：同步 = 内容 hash 一致
+    // 已发布：用内容哈希判断数据库与公共缓存是否一致
     const dbHash = await calculatePostHash({
       title: post.title,
       contentJson: post.contentJson,
@@ -285,6 +315,10 @@ export async function findPostById(
   return { ...post, isSynced, hasPublicCache };
 }
 
+/**
+ * 更新文章并返回最新详情。
+ * 当正文变更时异步同步媒体引用关系。
+ */
 export async function updatePost(
   context: DbContext & { executionCtx: ExecutionContext; env?: Env },
   data: UpdatePostInput,
@@ -295,6 +329,7 @@ export async function updatePost(
   }
 
   if (data.data.contentJson !== undefined) {
+    // 内容变化后异步同步媒体引用关系，不阻塞主请求
     context.executionCtx.waitUntil(
       syncPostMedia(context.db, updatedPost.id, data.data.contentJson),
     );
@@ -303,6 +338,10 @@ export async function updatePost(
   return findPostById(context, { id: updatedPost.id });
 }
 
+/**
+ * 删除文章。
+ * 若为已发布文章，同时异步清理详情缓存、列表版本、搜索索引与 CDN。
+ */
 export async function deletePost(
   context: DbContext & { executionCtx: ExecutionContext },
   data: DeletePostInput,
@@ -312,7 +351,7 @@ export async function deletePost(
 
   await PostRepo.deletePost(context.db, data.id);
 
-  // Only clear cache/index for published posts
+  // 仅已发布文章需要清理公共缓存、搜索索引与 CDN
   if (post.status === "published") {
     const tasks = [];
     const version = await CacheService.getVersion(context, "posts:detail");
@@ -331,7 +370,7 @@ export async function deletePost(
 
     context.executionCtx.waitUntil(Promise.all(tasks));
   } else {
-    // Even for drafts, clean up hash if exists
+    // 草稿也要清理同步哈希（若存在）
     context.executionCtx.waitUntil(
       CacheService.deleteKey(context, POSTS_CACHE_KEYS.syncHash(data.id)),
     );
@@ -347,17 +386,21 @@ export async function previewSummary(
   return { summary };
 }
 
+/**
+ * 启动文章发布后处理工作流。
+ * 负责补齐发布时间、触发后处理，以及维护定时发布实例。
+ */
 export async function startPostProcessWorkflow(
   context: DbContext,
   data: StartPostProcessInput,
 ) {
   let publishedAtISO: string | undefined;
 
-  // Check if we need to auto-set the published date
+  // 若状态改为 published 且未设置发布时间，则自动补齐当前时间
   if (data.status === "published") {
     const post = await PostRepo.findPostById(context.db, data.id);
     if (post && !post.publishedAt) {
-      const now = new Date();
+      const now = getCurrentMinuteEnd();
       await PostRepo.updatePost(context.db, post.id, {
         publishedAt: now,
       });
@@ -375,17 +418,17 @@ export async function startPostProcessWorkflow(
     },
   });
 
-  // Defensively terminate any existing scheduled publish workflow for this post
+  // 防御性处理：先终止该文章已有的定时发布实例，避免重复触发
   const scheduledId = `post-${data.id}-scheduled`;
   try {
     const oldInstance =
       await context.env.SCHEDULED_PUBLISH_WORKFLOW.get(scheduledId);
     await oldInstance.terminate();
   } catch {
-    // Instance doesn't exist or already completed, ignore
+    // 实例不存在或已完成，忽略即可
   }
 
-  // If this is a future post, create a new scheduled publish workflow
+  // 如果发布时间在未来，则创建新的定时发布工作流
   if (data.status === "published" && publishedAtISO) {
     const publishDate = new Date(publishedAtISO);
     if (publishDate.getTime() > Date.now()) {
