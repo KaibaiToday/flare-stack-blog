@@ -7,6 +7,7 @@ import { MobileMenu } from "./mobile-menu";
 import { Navbar } from "./navbar";
 import type { PublicLayoutProps } from "@/features/theme/contract/layouts";
 import { blogConfig } from "@/blog.config";
+import { BackgroundLayer } from "../../default/components/background-layer";
 
 const BANNER_HEIGHT_HOME = 65;
 const BANNER_HEIGHT_PAGE = 35;
@@ -58,7 +59,13 @@ export function PublicLayout({
           alt="banner"
           fetchPriority="high"
           className="w-full h-full object-cover object-center"
+          
         />
+        <div className="absolute inset-0 bg-(--fuwari-banner-overlay) pointer-events-none" style={
+          {
+            background:`linear-gradient(to top, var(--fuwari-page-bg), transparent)`,
+          }
+        }/>
       </div>
 
       {/* Main content - overlaps banner by MAIN_OVERLAP_REM */}
