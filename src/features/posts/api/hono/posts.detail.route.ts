@@ -17,7 +17,7 @@ const route = app.get(
     const result = await PostService.findPostBySlug(getServiceContext(c), {
       slug,
     });
-    setCacheHeaders(c.res.headers, "public");
+    setCacheHeaders(c.res.headers, "swr");
     return c.json(result);
   },
 );

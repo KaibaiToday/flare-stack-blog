@@ -9,7 +9,7 @@ app.use("*", baseMiddleware);
 
 const route = app.get("/", async (c) => {
   const result = await TagService.getPublicTags(getServiceContext(c));
-  setCacheHeaders(c.res.headers, "public");
+  setCacheHeaders(c.res.headers, "swr");
   return c.json(result);
 });
 

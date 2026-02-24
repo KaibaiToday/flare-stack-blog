@@ -7,6 +7,7 @@
   "observability": {
     "enabled": true,
   },
+  "keep_vars": true,
   "routes": [
     {
       "pattern": "DOMAIN_PLACEHOLDER",
@@ -23,7 +24,7 @@
   ],
   "r2_buckets": [
     {
-      "bucket_name": "BUCKET_NAME",
+      "bucket_name": "bucket-name-placeholder",
       "binding": "R2",
       "remote": true,
     },
@@ -50,6 +51,16 @@
       "name": "scheduled-publish-workflow",
       "binding": "SCHEDULED_PUBLISH_WORKFLOW",
       "class_name": "ScheduledPublishWorkflow",
+    },
+    {
+      "name": "export-workflow",
+      "binding": "EXPORT_WORKFLOW",
+      "class_name": "ExportWorkflow",
+    },
+    {
+      "name": "import-workflow",
+      "binding": "IMPORT_WORKFLOW",
+      "class_name": "ImportWorkflow",
     },
   ],
   "durable_objects": {
@@ -133,6 +144,16 @@
           "name": "scheduled-publish-workflow",
           "binding": "SCHEDULED_PUBLISH_WORKFLOW",
           "class_name": "ScheduledPublishWorkflow",
+        },
+        {
+          "name": "export-workflow",
+          "binding": "EXPORT_WORKFLOW",
+          "class_name": "ExportWorkflow",
+        },
+        {
+          "name": "import-workflow",
+          "binding": "IMPORT_WORKFLOW",
+          "class_name": "ImportWorkflow",
         },
       ],
       "queues": {

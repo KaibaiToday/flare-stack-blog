@@ -16,6 +16,7 @@ interface Params {
   postId: number;
   isPublished: boolean;
   publishedAt?: string; // ISO 8601
+  isFuturePost?: boolean;
 }
 
 export class PostProcessWorkflow extends WorkflowEntrypoint<Env, Params> {
@@ -89,9 +90,7 @@ export class PostProcessWorkflow extends WorkflowEntrypoint<Env, Params> {
     if (!updatedPost) return;
 
     // 3. Update search index (skip for future posts — ScheduledPublishWorkflow handles it)
-    const isFuturePost =
-      event.payload.publishedAt &&
-      new Date(event.payload.publishedAt).getTime() > Date.now();
+    const isFuturePost = !!event.payload.isFuturePost;
 
     if (!isFuturePost) {
       await step.do("update search index", async () => {

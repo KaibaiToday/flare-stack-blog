@@ -22,7 +22,7 @@ const route = app.get(
   async (c) => {
     const data = c.req.valid("query");
     const result = await PostService.getPostsCursor(getServiceContext(c), data);
-    setCacheHeaders(c.res.headers, "public");
+    setCacheHeaders(c.res.headers, "swr");
     return c.json(result);
   },
 );

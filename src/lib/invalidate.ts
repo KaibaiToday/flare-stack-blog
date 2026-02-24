@@ -6,7 +6,7 @@ interface PurgeOptions {
 }
 
 export async function purgeCDNCache(env: Env, options: PurgeOptions) {
-  const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_PURGE_API_TOKEN, DOMAIN } =
+  const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_PURGE_API_TOKEN, DOMAIN, CDN_DOMAIN } =
     serverEnv(env);
 
   if (isNotInProduction(env)) {
@@ -16,7 +16,8 @@ export async function purgeCDNCache(env: Env, options: PurgeOptions) {
     return;
   }
 
-  const baseUrl = `https://${DOMAIN}`;
+  const domain = CDN_DOMAIN ?? DOMAIN;
+  const baseUrl = `https://${domain}`;
 
   const payload: { files?: Array<string>; prefixes?: Array<string> } = {};
 
@@ -33,9 +34,9 @@ export async function purgeCDNCache(env: Env, options: PurgeOptions) {
     payload.prefixes = options.prefixes.map((path) => {
       const cleanPath = path.startsWith("/") ? path : `/${path}`;
       if (cleanPath === "/") {
-        return DOMAIN;
+        return domain;
       }
-      return `${DOMAIN}${cleanPath}`;
+      return `${domain}${cleanPath}`;
     });
   }
 

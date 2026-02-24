@@ -108,7 +108,7 @@ export function SideBar({
       icon: ImageIcon,
       label: "外观设置",
       exact: false,
-    }
+    },
   ] satisfies Array<NavItem>;
 
   return (

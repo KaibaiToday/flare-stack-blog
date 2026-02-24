@@ -24,7 +24,7 @@ const route = app.get(
       { db: c.get("db"), env: c.env },
       data,
     );
-    setCacheHeaders(c.res.headers, "immutable");
+    setCacheHeaders(c.res.headers, "swr");
     return c.json(result);
   },
 );

@@ -15,9 +15,12 @@ export class ScheduledPublishWorkflow extends WorkflowEntrypoint<Env, Params> {
   async run(event: WorkflowEvent<Params>, step: WorkflowStep) {
     const { postId } = event.payload;
 
+    const publishAt = new Date(event.payload.publishedAt);
+    if (Number.isNaN(publishAt.getTime())) return;
+
     await step.sleepUntil(
       "sleep until publish date",
-      new Date(event.payload.publishedAt),
+      publishAt,
     );
 
     const post = await step.do("verify post status", async () => {

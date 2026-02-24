@@ -18,6 +18,8 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 CLOUDFLARE_ZONE_ID=your-zone-id
 CLOUDFLARE_PURGE_API_TOKEN=your-purge-api-token
 DOMAIN=blog.example.com
+# 可选：若使用独立 CDN 域名，设置后 purge 时优先使用此域名
+# CDN_DOMAIN=cdn.example.com
 
 # --- Umami 统计（可选） ---
 # Umami Cloud: 设置 UMAMI_SRC=https://cloud.umami.is 并提供 UMAMI_API_KEY

@@ -20,7 +20,7 @@ const route = app.get(
       slug,
       limit,
     });
-    setCacheHeaders(c.res.headers, "public");
+    setCacheHeaders(c.res.headers, "swr");
     return c.json(result);
   },
 );

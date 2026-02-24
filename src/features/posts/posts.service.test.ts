@@ -507,6 +507,7 @@ describe("PostService", () => {
       await PostService.startPostProcessWorkflow(adminContext, {
         id,
         status: "published",
+        clientToday: new Date().toISOString().slice(0, 10),
       });
 
       expect(
@@ -516,6 +517,7 @@ describe("PostService", () => {
           postId: id,
           isPublished: true,
           publishedAt: expect.any(String),
+          isFuturePost: false,
         },
       });
     });
@@ -538,11 +540,54 @@ describe("PostService", () => {
       await PostService.startPostProcessWorkflow(adminContext, {
         id,
         status: "published",
+        clientToday: new Date().toISOString().slice(0, 10),
       });
 
       // Verify publishedAt was set
       const post = await PostService.findPostById(adminContext, { id });
       expect(post?.publishedAt).not.toBeNull();
+    });
+
+    it("should treat same-day future publish time as future and create scheduled workflow", async () => {
+      const { id } = await PostService.createEmptyPost(adminContext);
+      const publishAt = new Date(Date.now() + 5 * 60 * 1000);
+
+      await PostService.updatePost(adminContext, {
+        id,
+        data: {
+          title: "Future Today Post",
+          slug: "future-today-post",
+          status: "published",
+          publishedAt: publishAt,
+        },
+      });
+
+      await PostService.startPostProcessWorkflow(adminContext, {
+        id,
+        status: "published",
+        clientToday: new Date().toISOString().slice(0, 10),
+      });
+
+      expect(
+        adminContext.env.POST_PROCESS_WORKFLOW.create,
+      ).toHaveBeenCalledWith({
+        params: {
+          postId: id,
+          isPublished: true,
+          publishedAt: expect.any(String),
+          isFuturePost: true,
+        },
+      });
+
+      expect(
+        adminContext.env.SCHEDULED_PUBLISH_WORKFLOW.create,
+      ).toHaveBeenCalledWith({
+        id: `post-${id}-scheduled`,
+        params: {
+          postId: id,
+          publishedAt: expect.any(String),
+        },
+      });
     });
   });
 

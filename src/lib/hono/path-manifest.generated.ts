@@ -21,6 +21,7 @@ export const ROUTE_REGEXPS: Array<RegExp> = [
   new RegExp("^/submit-friend-link/?$"),
   new RegExp("^/$"),
   new RegExp("^/post/[^/]+/?$"),
+  new RegExp("^/admin/appearance/?$"),
   new RegExp("^/admin/comments/?$"),
   new RegExp("^/admin/friend-links/?$"),
   new RegExp("^/admin/media/?$"),

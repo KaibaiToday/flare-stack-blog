@@ -10,6 +10,7 @@ import {
   startPostProcessWorkflowFn,
 } from "@/features/posts/api/posts.admin.api";
 import { useDebounce } from "@/hooks/use-debounce";
+import { toLocalDateString } from "@/lib/utils";
 import { convertToPlainText, slugify } from "@/features/posts/utils/content";
 import { createTagFn, generateTagsFn } from "@/features/tags/api/tags.api";
 import { TAGS_KEYS } from "@/features/tags/queries";
@@ -120,7 +121,11 @@ export function usePostActions({
 
     setTimeout(() => {
       processDataMutation.mutate({
-        data: { id: postId, status: post.status },
+        data: {
+          id: postId,
+          status: post.status,
+          clientToday: toLocalDateString(new Date()),
+        },
       });
 
       // Feedback: Notify user task is running

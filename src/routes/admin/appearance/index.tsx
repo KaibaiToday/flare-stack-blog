@@ -1,10 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { User } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { CommentStatus } from "@/lib/db/schema";
-import { CommentModerationTable } from "@/features/comments/components/admin/comment-moderation-table";
-import { Input } from "@/components/ui/input";
 
 const searchSchema = z.object({
   status: z
@@ -34,9 +30,9 @@ export const Route = createFileRoute("/admin/appearance/")({
 });
 
 function AppearancePage() {
-  const { status, userName, page } = Route.useSearch();
+  const { userName } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const [searchInput, setSearchInput] = useState(userName || "");
+  const [searchInput] = useState(userName || "");
 
   // Debounce search input
   useEffect(() => {
@@ -73,10 +69,7 @@ function AppearancePage() {
 
       <div className="space-y-8">
         {/* Navigation & Tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        </div>
-
-        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6"></div>
       </div>
     </div>
   );

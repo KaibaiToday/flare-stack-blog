@@ -65,16 +65,32 @@ const tryCacheResponse = (c: Context, cache: Cache) => {
 };
 
 export const cacheMiddleware = createMiddleware(async (c, next) => {
+  if (serverEnv(c.env).ENVIRONMENT === "dev") {
+    return next();
+  }
+
   if (c.req.method !== "GET") {
     return next();
   }
 
   const path = c.req.path;
 
-  // 排除需要 session 的 API（如 /api/auth, /api/send）
-  // 但包含 public API（/api/posts, /api/post, /api/tags, /api/search）
-  const EXCLUDED_PREFIXES = ["/api/auth", "/api/send"];
-  if (EXCLUDED_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+  // 排除需要实时性的动态接口与页面
+  const excludedPrefixes = [
+    "/api/auth",
+    "/api/send",
+    "/api/posts",
+    "/api/post",
+    "/api/tags",
+    "/api/search",
+    "/post/",
+  ];
+  const excludedExactPaths = ["/", "/posts", "/post"];
+
+  if (
+    excludedPrefixes.some((prefix) => path.startsWith(prefix)) ||
+    excludedExactPaths.includes(path)
+  ) {
     return next();
   }
 

@@ -4,13 +4,14 @@ import type {
   Session as SessionType,
 } from "@/lib/auth/auth.server";
 import type { QueueMessage } from "@/lib/queue/queue.schema";
-import type { ThemeConfig } from "@/features/theme/config";
+import type { ThemeRouterConfig } from "@/features/theme/registry";
 
 declare global {
   interface PostProcessWorkflowParams {
     postId: number;
     isPublished: boolean;
     publishedAt?: string;
+    isFuturePost?: boolean;
   }
 
   interface ScheduledPublishWorkflowParams {
@@ -22,10 +23,24 @@ declare global {
     commentId: number;
   }
 
+  interface ExportWorkflowParams {
+    taskId: string;
+    postIds?: Array<number>;
+    status?: "draft" | "published";
+  }
+
+  interface ImportWorkflowParams {
+    taskId: string;
+    r2Key: string;
+    mode: "native" | "markdown";
+  }
+
   interface Env extends Cloudflare.Env {
     POST_PROCESS_WORKFLOW: Workflow<PostProcessWorkflowParams>;
     COMMENT_MODERATION_WORKFLOW: Workflow<CommentModerationWorkflowParams>;
     SCHEDULED_PUBLISH_WORKFLOW: Workflow<ScheduledPublishWorkflowParams>;
+    EXPORT_WORKFLOW: Workflow<ExportWorkflowParams>;
+    IMPORT_WORKFLOW: Workflow<ImportWorkflowParams>;
     QUEUE: Queue<QueueMessage>;
   }
 
@@ -51,5 +66,5 @@ declare global {
   };
 
   const __APP_VERSION__: string;
-  const __THEME_CONFIG__: ThemeConfig;
+  const __THEME_CONFIG__: ThemeRouterConfig;
 }

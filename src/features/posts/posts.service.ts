@@ -13,6 +13,7 @@ import type {
   UpdatePostInput,
 } from "@/features/posts/posts.schema";
 import * as CacheService from "@/features/cache/cache.service";
+import { isFuturePublishDate } from "@/features/posts/utils/date";
 import { syncPostMedia } from "@/features/posts/data/post-media.data";
 import * as PostRepo from "@/features/posts/data/posts.data";
 import {
@@ -410,11 +411,15 @@ export async function startPostProcessWorkflow(
     }
   }
 
+  const isFuture =
+    !!publishedAtISO && isFuturePublishDate(publishedAtISO, data.clientToday);
+
   await context.env.POST_PROCESS_WORKFLOW.create({
     params: {
       postId: data.id,
       isPublished: data.status === "published",
       publishedAt: publishedAtISO,
+      isFuturePost: isFuture,
     },
   });
 

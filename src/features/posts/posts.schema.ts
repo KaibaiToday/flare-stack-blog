@@ -97,6 +97,7 @@ export const PreviewSummaryInputSchema = PostSelectSchema.pick({
 export const StartPostProcessInputSchema = z.object({
   id: z.number(),
   status: z.enum(POST_STATUSES),
+  clientToday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
 export type GenerateSlugInput = z.infer<typeof GenerateSlugInputSchema>;
